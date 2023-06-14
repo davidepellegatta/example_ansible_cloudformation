@@ -52,7 +52,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: Doctolib POC VPC Magma
+          Value: POC VPC
 
   InternetGateway:
     Type: 'AWS::EC2::InternetGateway'
