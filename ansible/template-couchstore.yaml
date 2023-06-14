@@ -1,0 +1,899 @@
+Parameters:
+  KeyName:
+    Description: Key Pair for EC2
+    Type: 'AWS::EC2::KeyPair::KeyName'
+  AmiId:
+    Description: Ami Id in this region
+    Type: 'AWS::EC2::Image::Id'
+    Default: ami-04f7efe62f419d9f5
+  DataServiceDiskSize:
+    Description: Volume Size for Data Nodes
+    Type: Number
+    Default: '1900'
+  DataServiceDiskType:
+    Description: Volume Type for Data Nodes
+    Type: String
+    Default: 'io2'
+  DataServiceDiskIops:
+    Description: Iops provisioned for Data Nodes
+    Type: Number
+    Default: '64000'
+  IndexServiceDiskIops:
+    Description: Iops provisioned for Index Nodes
+    Type: Number
+    Default: '64000'
+  IndexServiceDiskSize:
+    Description: Volume Size for Index Nodes
+    Type: Number
+    Default: '1900'
+  IndexServiceDiskType:
+    Description: Volume Type for Index Nodes
+    Type: String
+    Default: 'io2'
+  IndexInstanceType:
+    Description: Instance Type for Index Nodes
+    Type: String
+    Default: 'r5d.8xlarge'
+  DataInstanceType:
+    Description: Instance Type for Data Nodes
+    Type: String
+    Default: 'r5d.8xlarge'
+  QueryInstanceType:
+    Description: Instance Type for Query Nodes
+    Type: String
+    Default: 'r5d.8xlarge'
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: DoctolibVPC
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: VPC Internet Gateway
+
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: eu-west-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 1
+
+  PublicSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: eu-west-1b
+      Tags:
+        - Key: Name
+          Value: Public Subnet 2
+
+  PublicSubnet3:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: eu-west-1c
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 3
+
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public Route Table
+
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 4b93e800-7c31-4383-bd2d-7933df5f1c1d
+  PublicSubnetRouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociation2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociation3:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet3
+      RouteTableId: !Ref PublicRouteTable
+
+  EC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:      
+      VpcId: !Ref VPC
+      GroupDescription: 'Doctolib POC SG'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 9119
+          ToPort: 9119
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9998
+          ToPort: 9998
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11213
+          ToPort: 11213
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21200
+          ToPort: 21200
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21300
+          ToPort: 21300
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21250
+          ToPort: 21250
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21350
+          ToPort: 21350
+          CidrIp: 0.0.0.0/0
+        #node2node
+        - IpProtocol: tcp
+          FromPort: 4369
+          ToPort: 4369
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8091
+          ToPort: 8094
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9105
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9110
+          ToPort: 9118
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9120
+          ToPort: 9122
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9130
+          ToPort: 9130
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9999
+          ToPort: 9999
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11209
+          ToPort: 11210
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21100
+          ToPort: 21100
+          CidrIp: 0.0.0.0/0
+        #node2node encrypted
+        - IpProtocol: tcp
+          FromPort: 9999
+          ToPort: 9999
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11206
+          ToPort: 11206
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11207
+          ToPort: 11207
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18091
+          ToPort: 18094
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 19102
+          ToPort: 19102
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 19130
+          ToPort: 19130
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 21150
+          ToPort: 21150
+          CidrIp: 0.0.0.0/0
+        #client2node
+        - IpProtocol: tcp
+          FromPort: 8091
+          ToPort: 8097
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9123
+          ToPort: 9123
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9140
+          ToPort: 9140
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11210
+          ToPort: 11210
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11280
+          ToPort: 11280
+          CidrIp: 0.0.0.0/0
+        #cliet2node encrypted
+        - IpProtocol: tcp
+          FromPort: 11207
+          ToPort: 11207
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18091
+          ToPort: 18095
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18096
+          ToPort: 18096
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18097
+          ToPort: 18097
+          CidrIp: 0.0.0.0/0
+        # xdcr
+        - IpProtocol: tcp
+          FromPort: 8091
+          ToPort: 8091
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8092
+          ToPort: 8092
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 11210
+          ToPort: 11210
+          CidrIp: 0.0.0.0/0
+        # xdcr encrypted
+        - IpProtocol: tcp
+          FromPort: 11207
+          ToPort: 11207
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18091
+          ToPort: 18091
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 18092
+          ToPort: 18092
+          CidrIp: 0.0.0.0/0
+
+  
+#-------------------
+#Availability zone A
+#-------------------  
+  EC2InstanceData1a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+
+  EC2InstanceData2a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData3a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+
+  EC2InstanceData4a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData5a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceIndex1a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceIndex2a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceQuery1a:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref QueryInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1a
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet1"
+            
+
+#-------------------
+#Availability zone B
+#-------------------
+  EC2InstanceData1b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData2b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData3b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData4b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData5b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceIndex1b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceIndex2b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+      
+  EC2InstanceQuery1b:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref QueryInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1b
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet2"
+
+#-------------------
+#Availability zone C
+#-------------------
+  EC2InstanceData1c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData2c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+
+  EC2InstanceData3c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData4c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceData5c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref DataInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref DataServiceDiskType
+          VolumeSize: !Ref DataServiceDiskSize
+          Iops: !Ref DataServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceIndex1c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+
+  EC2InstanceIndex2c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref IndexInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+      BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeType: !Ref IndexServiceDiskType
+          VolumeSize: !Ref IndexServiceDiskSize
+          Iops: !Ref IndexServiceDiskIops
+          DeleteOnTermination: 'true'
+
+  EC2InstanceQuery1c:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref QueryInstanceType
+      KeyName: !Ref KeyName
+      AvailabilityZone: eu-west-1c
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+          - Ref: "EC2SecurityGroup"
+        SubnetId: 
+          Ref: "PublicSubnet3"
+
+
+Outputs:
+  EC2InstanceData1a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData1a.PublicDnsName
+  EC2InstanceData2a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData2a.PublicDnsName
+  EC2InstanceData3a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData3a.PublicDnsName
+  EC2InstanceData4a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData4a.PublicDnsName
+  EC2InstanceData5a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData5a.PublicDnsName
+  EC2InstanceIndex1a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex1a.PublicDnsName
+  EC2InstanceIndex2a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex2a.PublicDnsName
+  EC2InstanceQuery1a:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceQuery1a.PublicDnsName
+
+  EC2InstanceData1b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData1b.PublicDnsName
+  EC2InstanceData2b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData2b.PublicDnsName
+  EC2InstanceData3b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData3b.PublicDnsName
+  EC2InstanceData4b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData4b.PublicDnsName
+  EC2InstanceData5b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData5b.PublicDnsName
+  EC2InstanceIndex1b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex1b.PublicDnsName
+  EC2InstanceIndex2b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex2b.PublicDnsName
+  EC2InstanceQuery1b:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceQuery1b.PublicDnsName
+
+  EC2InstanceData1c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData1c.PublicDnsName
+  EC2InstanceData2c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData2c.PublicDnsName
+  EC2InstanceData3c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData3c.PublicDnsName
+  EC2InstanceData4c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData4c.PublicDnsName
+  EC2InstanceData5c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceData5c.PublicDnsName
+  EC2InstanceIndex1c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex1c.PublicDnsName
+  EC2InstanceIndex2c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceIndex2c.PublicDnsName
+  EC2InstanceQuery1c:
+    Description: The DNSName of EC2InstanceData1a
+    Value: !GetAtt EC2InstanceQuery1c.PublicDnsName
