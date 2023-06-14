@@ -4,6 +4,6 @@
   become: true
   become_user: root
   vars_files:
-    - ./doctolib-vars.yml
+    - ./vars.yml
   roles:
     - couchbaselabs.couchbase_server
