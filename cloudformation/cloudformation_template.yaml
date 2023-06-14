@@ -137,7 +137,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:      
       VpcId: !Ref VPC
-      GroupDescription: 'Doctolib POC SG'
+      GroupDescription: 'POC SG'
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 9119
@@ -330,7 +330,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-1'
+          Value : 'EC2InstanceData-A-1'
 
   EC2InstanceDataA2:
     Type: 'AWS::EC2::Instance'
@@ -355,7 +355,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-2'
+          Value : 'EC2InstanceData-A-2'
 
   EC2InstanceDataA3:
     Type: 'AWS::EC2::Instance'
@@ -380,7 +380,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-3'
+          Value : 'EC2InstanceData-A-3'
 
   EC2InstanceDataA4:
     Type: 'AWS::EC2::Instance'
@@ -405,7 +405,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-4'
+          Value : 'EC2InstanceData-A-4'
 
   EC2InstanceDataA5:
     Type: 'AWS::EC2::Instance'
@@ -430,7 +430,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-5'
+          Value : 'EC2InstanceData-A-5'
 
   EC2InstanceIndexA1:
     Type: 'AWS::EC2::Instance'
@@ -455,7 +455,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-1'
+          Value : 'EC2InstanceIndex-A-1'
 
   EC2InstanceIndexA2:
     Type: 'AWS::EC2::Instance'
@@ -480,7 +480,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-2'
+          Value : 'EC2InstanceIndex-A-2'
 
   EC2InstanceQueryA1:
     Type: 'AWS::EC2::Instance'
@@ -505,7 +505,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-2'
+          Value : 'EC2InstanceIndex-A-2'
 
 
 # Availability zone B
@@ -533,7 +533,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-1'
+          Value : 'EC2InstanceData-B-1'
 
   EC2InstanceDataA2:
     Type: 'AWS::EC2::Instance'
@@ -558,7 +558,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-2'
+          Value : 'EC2InstanceData-A-2'
 
   EC2InstanceDataA3:
     Type: 'AWS::EC2::Instance'
@@ -583,7 +583,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-3'
+          Value : 'EC2InstanceData-A-3'
 
   EC2InstanceDataA4:
     Type: 'AWS::EC2::Instance'
@@ -608,7 +608,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-4'
+          Value : 'EC2InstanceData-A-4'
 
   EC2InstanceDataA5:
     Type: 'AWS::EC2::Instance'
@@ -633,7 +633,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-A-5'
+          Value : 'EC2InstanceData-A-5'
 
   EC2InstanceIndexA1:
     Type: 'AWS::EC2::Instance'
@@ -658,7 +658,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-1'
+          Value : 'EC2InstanceIndex-A-1'
 
   EC2InstanceIndexA2:
     Type: 'AWS::EC2::Instance'
@@ -683,7 +683,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-2'
+          Value : 'EC2InstanceIndex-A-2'
 
   EC2InstanceQueryA1:
     Type: 'AWS::EC2::Instance'
@@ -708,7 +708,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-A-2'
+          Value : 'EC2InstanceIndex-A-2'
 
   EC2InstanceDataB1:
     Type: 'AWS::EC2::Instance'
@@ -733,7 +733,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-1'
+          Value : 'EC2InstanceData-B-1'
 
   EC2InstanceDataB2:
     Type: 'AWS::EC2::Instance'
@@ -758,7 +758,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-2'
+          Value : 'EC2InstanceData-B-2'
 
   EC2InstanceDataB3:
     Type: 'AWS::EC2::Instance'
@@ -783,7 +783,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-3'
+          Value : 'EC2InstanceData-B-3'
 
   EC2InstanceDataB4:
     Type: 'AWS::EC2::Instance'
@@ -808,7 +808,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-4'
+          Value : 'EC2InstanceData-B-4'
 
   EC2InstanceDataB5:
     Type: 'AWS::EC2::Instance'
@@ -833,7 +833,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-B-5'
+          Value : 'EC2InstanceData-B-5'
 
   EC2InstanceIndexB1:
     Type: 'AWS::EC2::Instance'
@@ -858,7 +858,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-B-1'
+          Value : 'EC2InstanceIndex-B-1'
 
   EC2InstanceIndexB2:
     Type: 'AWS::EC2::Instance'
@@ -883,7 +883,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-B-2'
+          Value : 'EC2InstanceIndex-B-2'
 
   EC2InstanceQueryB1:
     Type: 'AWS::EC2::Instance'
@@ -908,7 +908,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceQuery-B-1'
+          Value : 'EC2InstanceQuery-B-1'
 
   EC2InstanceDataC1:
     Type: 'AWS::EC2::Instance'
@@ -933,7 +933,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-C-1'
+          Value : 'EC2InstanceData-C-1'
 
   EC2InstanceDataC2:
     Type: 'AWS::EC2::Instance'
@@ -958,7 +958,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-C-2'
+          Value : 'EC2InstanceData-C-2'
 
   EC2InstanceDataC3:
     Type: 'AWS::EC2::Instance'
@@ -983,7 +983,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-C-3'
+          Value : 'EC2InstanceData-C-3'
 
   EC2InstanceDataC4:
     Type: 'AWS::EC2::Instance'
@@ -1008,7 +1008,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-C-4'
+          Value : 'EC2InstanceData-C-4'
 
   EC2InstanceDataC5:
     Type: 'AWS::EC2::Instance'
@@ -1033,7 +1033,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceData-C-5'
+          Value : 'EC2InstanceData-C-5'
 
   EC2InstanceIndexC1:
     Type: 'AWS::EC2::Instance'
@@ -1058,7 +1058,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-C-1'
+          Value : 'EC2InstanceIndex-C-1'
 
   EC2InstanceIndexC2:
     Type: 'AWS::EC2::Instance'
@@ -1083,7 +1083,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceIndex-C-2'
+          Value : 'EC2InstanceIndex-C-2'
 
   EC2InstanceQueryC1:
     Type: 'AWS::EC2::Instance'
@@ -1108,7 +1108,7 @@ Resources:
           DeleteOnTermination: 'true'
       Tags:
         - Key: 'Name'
-          Value : 'Doctolib EC2InstanceQuery-C-2'
+          Value : 'EC2InstanceQuery-C-2'
 
 Outputs:
   EC2InstanceDataA1:
@@ -1183,4 +1183,3 @@ Outputs:
   EC2InstanceQueryC1:
     Description: The DNSName of EC2InstanceQueryC1
     Value: !GetAtt EC2InstanceQueryC1.PublicDnsName
-
